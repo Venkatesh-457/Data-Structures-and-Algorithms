@@ -8,8 +8,8 @@ It serves as a personal knowledge base for building strong algorithmic thinking 
 
 ### Phase 0 – Foundations
 
-* [ x] Complexity Analysis (Big-O)
-* [x ] Recursion
+* [ ] Complexity Analysis (Big-O)
+* [ ] Recursion
 * [ ] Backtracking
 * [ ] Bit Manipulation
 * [ ] Prefix Sum
