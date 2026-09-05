@@ -1,4 +1,4 @@
-# Backtracking — Complete DSA Notes
+# Backtracking
 
 ## 1. What is Backtracking?
 
