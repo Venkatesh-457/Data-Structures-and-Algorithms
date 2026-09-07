@@ -2,165 +2,179 @@
 
 ## 1. What is Backtracking?
 
-**Backtracking** is a problem-solving technique used to explore a set of possible choices by:
+**Backtracking** is a technique for exploring possible choices by:
 
-1. Making a choice
-2. Exploring the consequences of that choice
-3. Undoing the choice
-4. Trying another choice
+> **Choose → Explore → Undo → Try Next**
 
-The core idea is:
-
-> **Choose → Explore → Undo → Try Next Choice**
-
-Backtracking is usually implemented using **recursion**.
-
----
-
-# 2. Recursion vs Backtracking
-
-Backtracking is built on recursion, but **not every recursion is backtracking**.
-
-### Normal recursion
-
-```text
-Solve smaller problem
-        ↓
-Recursive call
-        ↓
-Return answer
-```
+It is usually implemented using recursion.
 
 Example:
 
-```cpp
-int factorial(int n) {
-    if (n == 0)
-        return 1;
-
-    return n * factorial(n - 1);
-}
-```
-
-There is no choice exploration and no undo operation.
-
----
-
-### Backtracking
-
 ```text
-Make a choice
-      ↓
-Explore
-      ↓
-Undo the choice
-      ↓
-Make another choice
-```
-
-Example:
-
-```cpp
 choose 1
-    ↓
+   ↓
 explore
-    ↓
-remove 1
-
+   ↓
+undo 1
+   ↓
 choose 2
-    ↓
+   ↓
 explore
-    ↓
-remove 2
 ```
 
-So:
+### Backtracking =
 
-> **Backtracking = Recursion + Choices + Undoing choices**
+```text
+Recursion + Choices + Undo
+```
+
+Normal recursion does not necessarily have choices or undoing.
 
 ---
 
-# 3. Why Do We Need Backtracking?
+# 2. When Should You Think About Backtracking?
 
-Some problems ask us to find **all possible configurations** or search among many possible choices.
+Backtracking is useful when a problem requires exploring different possible configurations.
+
+Common examples:
+
+```text
+Subsets
+Permutations
+Combinations
+Combination Sum
+N-Queens
+Sudoku
+Maze / Grid paths
+Word Search
+String Partitioning
+Constraint problems
+```
+
+Strong signal:
+
+> **"I need to make a sequence of choices, and if a choice doesn't work, I need to undo it and try another."**
+
+---
+
+# 3. The Decision Tree
+
+Backtracking can be visualized as a **decision tree**.
+
+Example: subsets of `[1,2]`
+
+```text
+             start
+            /     \
+        take 1   skip 1
+         /  \      /  \
+     take2 skip2 take2 skip2
+```
+
+Think:
+
+```text
+Level → one decision
+Edge  → one choice
+Node  → current state
+Leaf  → complete solution / dead end
+```
+
+Each root-to-leaf path represents one possible sequence of choices.
+
+---
+
+# 4. The 5 Things You Must Identify
+
+Before coding, identify:
+
+### 1. State
+
+> What describes my current partial solution?
 
 Examples:
 
-* Generate all subsets
-* Generate all permutations
-* Generate combinations
-* Combination Sum
-* N-Queens
-* Sudoku
-* Rat in a Maze
-* Word Search
-* Partition a string into valid pieces
-* Constraint satisfaction problems
-
-For example, for:
-
 ```text
-[1, 2, 3]
+index
+path
+current position
+used elements
+remaining target
+board
+visited cells
 ```
 
-we may need to generate:
+### 2. Choices
+
+> What can I choose next?
+
+Examples:
 
 ```text
-[]
-[1]
-[2]
-[3]
-[1,2]
-[1,3]
-[2,3]
-[1,2,3]
+take / skip
+choose an element
+choose a number
+move in a direction
+place a queen
+choose a character
 ```
 
-There are many possible choices.
+### 3. Constraints
 
-Backtracking systematically explores them.
+> Which choices are invalid?
+
+Examples:
+
+```text
+sum > target
+queen attacks another queen
+cell already visited
+duplicate branch
+invalid Sudoku placement
+```
+
+### 4. Goal
+
+> When is the solution complete?
+
+Examples:
+
+```text
+index == n
+path.size() == k
+path.size() == n
+row == n
+reached destination
+target == 0
+```
+
+### 5. Undo
+
+> What did I change that must be restored?
+
+Examples:
+
+```text
+path.pop_back()
+used[i] = false
+visited[r][c] = false
+remove queen
+restore board
+```
 
 ---
 
-# 4. The Backtracking Decision Tree
-
-Suppose we want to generate subsets of:
-
-```text
-[1, 2]
-```
-
-At each element we have two choices:
-
-```text
-              start
-             /     \
-         choose 1  skip 1
-          /   \      /   \
-       choose2 skip2 choose2 skip2
-```
-
-This forms a **decision tree**.
-
-Each root-to-leaf path represents one possible solution.
-
-This is one of the most important ways to visualize backtracking.
-
----
-
-# 5. The Fundamental Backtracking Template
-
-The general structure is:
+# 5. The Fundamental Template
 
 ```cpp
 void backtrack(state) {
 
-    if (solution_is_complete) {
+    if (complete) {
         save_answer();
         return;
     }
 
-    for (each available choice) {
+    for (each choice) {
 
         // Choose
         make_choice();
@@ -174,122 +188,17 @@ void backtrack(state) {
 }
 ```
 
-The three most important lines are:
+The three most important operations are:
 
 ```cpp
 make_choice();
-
 backtrack(...);
-
 undo_choice();
 ```
 
-The undo operation is what gives backtracking its name.
-
 ---
 
-# 6. The Three Main Components
-
-Every backtracking problem can usually be understood through:
-
-## 1. State
-
-What describes the current situation?
-
-Examples:
-
-```text
-current index
-current path
-current board
-used elements
-current position
-remaining target
-visited cells
-```
-
----
-
-## 2. Choices
-
-What can I do from the current state?
-
-Examples:
-
-```text
-choose an element
-choose a number
-move up/down/left/right
-place a queen in a column
-choose a character
-```
-
----
-
-## 3. Goal
-
-When have I constructed a complete valid solution?
-
-Examples:
-
-```text
-index == n
-path.size() == k
-all queens placed
-target == 0
-reached destination
-```
-
----
-
-# 7. The Most Important Backtracking Question
-
-Before coding, ask:
-
-> **"At this state, what choices do I have?"**
-
-Then:
-
-> **"What happens if I make each choice?"**
-
-Then:
-
-> **"After exploring that choice, what must I undo?"**
-
-These three questions often reveal the entire solution.
-
----
-
-# 8. Choose → Explore → Undo
-
-Consider:
-
-```cpp
-path.push_back(x);
-
-backtrack(...);
-
-path.pop_back();
-```
-
-These represent:
-
-```text
-Choose:
-    add x
-
-Explore:
-    recursively solve the remaining problem
-
-Undo:
-    remove x
-```
-
-This pattern appears everywhere in backtracking.
-
----
-
-# 9. Why Do We Need to Undo?
+# 6. Why Undo Is Necessary
 
 Suppose:
 
@@ -297,19 +206,13 @@ Suppose:
 path = [1]
 ```
 
-We choose:
-
-```text
-2
-```
-
-Now:
+Choose `2`:
 
 ```text
 path = [1,2]
 ```
 
-After exploring all solutions beginning with `[1,2]`, we want to try:
+After exploring everything beginning with `[1,2]`, we need to try:
 
 ```text
 [1,3]
@@ -321,97 +224,162 @@ So we must restore:
 path = [1]
 ```
 
-before choosing `3`.
-
-That is why:
+Code:
 
 ```cpp
+path.push_back(2);
+backtrack(...);
 path.pop_back();
 ```
 
-is necessary.
+Without undoing, the previous branch contaminates the next branch.
 
-Without undoing:
+### Golden rule
 
-```text
-[1,2]
-[1,2,3]
-[1,2,3,4]
-...
-```
-
-the state from one branch contaminates another branch.
+> **After returning from recursion, restore the state to exactly what it was before the choice.**
 
 ---
 
-# 10. State Restoration
+# 7. The Most Important Backtracking Pattern
 
-Backtracking relies on an important principle:
+```cpp
+path.push_back(x);   // Choose
 
-> **After returning from a recursive call, restore the state to exactly what it was before the choice.**
+backtrack(...);      // Explore
 
-If you modify:
+path.pop_back();     // Undo
+```
+
+This same idea applies to almost everything:
 
 ```text
 path
-visited
-board
 used[]
+visited[][]
+board
 frequency
-remaining target
+counters
+sets
+remaining values
 ```
 
-you must make sure the modification is correctly reversed when required.
+If you modify shared state, ask:
+
+> **"How do I restore it?"**
 
 ---
 
-# 11. Example — Generate All Subsets
+# 8. Base Case in Backtracking
 
-Given:
+The base case usually means:
 
-```text
-[1,2,3]
-```
+> **A complete solution has been constructed.**
 
-At each index:
+Examples:
 
-```text
-choose current element
-OR
-skip current element
-```
-
-A recursive state can be:
+### Permutations
 
 ```cpp
-backtrack(index, path)
+if (path.size() == n)
 ```
 
-Meaning:
+### Choose `k` elements
 
-> Generate all subsets using elements from `index` onward, given the current `path`.
+```cpp
+if (path.size() == k)
+```
+
+### N-Queens
+
+```cpp
+if (row == n)
+```
+
+### Grid
+
+```cpp
+if (r == targetRow && c == targetCol)
+```
+
+The condition depends on what **complete solution** means.
 
 ---
 
-### Decision
+# 9. Base Case vs Pruning
 
-For element `nums[index]`:
+These are different.
+
+### Base Case
+
+The solution is complete.
 
 ```text
-Choice 1:
-Take it
-
-Choice 2:
-Don't take it
+"We are done."
 ```
 
-This produces a binary decision tree.
+### Pruning
+
+The current branch cannot possibly produce a valid solution.
+
+```text
+"This branch is useless."
+```
+
+Example:
+
+```cpp
+if (currentSum > target)
+    return;
+```
+
+This is pruning, not a successful solution.
 
 ---
 
-# 12. Two Common Ways to Implement Subsets
+# 10. Pruning
 
-## Method 1 — Explicit Take / Don't Take
+**Pruning** means stopping a branch early when you can prove that it cannot produce a valid answer.
+
+Without pruning:
+
+```text
+Explore everything
+```
+
+With pruning:
+
+```text
+Explore only promising branches
+```
+
+Example:
+
+```cpp
+if (currentSum > target)
+    return;
+```
+
+This is safe only when future choices **cannot decrease** the sum.
+
+If negative numbers are allowed, this condition may incorrectly remove valid solutions.
+
+### Golden rule
+
+> **Only prune when you can prove that the branch cannot become valid.**
+
+---
+
+# 11. Subsets
+
+For every element, there are two choices:
+
+```text
+Take it
+OR
+Skip it
+```
+
+Example:
 
 ```cpp
 void solve(int i) {
@@ -426,127 +394,78 @@ void solve(int i) {
     solve(i + 1);
     path.pop_back();
 
-    // Don't take
+    // Skip
     solve(i + 1);
 }
 ```
 
----
+This produces:
 
-## Method 2 — Loop-Based Backtracking
-
-```cpp
-void solve(int start) {
-
-    answer.push_back(path);
-
-    for (int i = start; i < n; i++) {
-
-        path.push_back(nums[i]);
-
-        solve(i + 1);
-
-        path.pop_back();
-    }
-}
+```text
+2^n
 ```
 
-Both are valid.
-
-The second pattern is especially useful for:
-
-* Combinations
-* Subsets
-* Combination Sum
-* Choosing `k` elements
+possible subsets.
 
 ---
 
-# 13. The Loop-Based Backtracking Template
+# 12. Loop-Based Backtracking
 
-One of the most important templates is:
+A very important pattern for combinations and similar problems:
 
 ```cpp
 void backtrack(int start) {
 
-    if (condition)
-        return;
-
     for (int i = start; i < n; i++) {
 
-        // Choose
         path.push_back(nums[i]);
 
-        // Explore
         backtrack(i + 1);
 
-        // Undo
         path.pop_back();
     }
 }
 ```
 
-The `start` parameter controls which choices are still available.
-
----
-
-# 14. Why `start` Is Important
-
-Suppose:
-
-```text
-[1,2,3]
-```
-
-After choosing `1`, we should consider:
-
-```text
-2,3
-```
-
-but we shouldn't go backward and choose `1` again.
-
-Therefore:
+The important idea is:
 
 ```cpp
 backtrack(i + 1);
 ```
 
-moves the starting point forward.
+After choosing `nums[i]`, only later elements are considered.
 
-This prevents:
-
-```text
-[1,1]
-[2,2]
-```
-
-and prevents generating combinations in different orders.
+This prevents going backward and generating different orders of the same combination.
 
 ---
 
-# 15. Combination vs Permutation
+# 13. Combination vs Permutation
 
-This distinction is extremely important.
+This distinction is **extremely important**.
 
 ## Combination
 
 Order does **not** matter.
 
 ```text
-[1,2]
-[2,1]
+[1,2] == [2,1]
 ```
 
-represent the same combination.
+Usually use:
 
-Therefore, after choosing `1`, we usually don't go backward.
+```cpp
+start
+```
 
-Pattern:
+and recurse with:
 
 ```cpp
 backtrack(i + 1);
 ```
+
+Think:
+
+> **Move forward. Don't reuse earlier positions.**
 
 ---
 
@@ -555,409 +474,341 @@ backtrack(i + 1);
 Order **does** matter.
 
 ```text
-[1,2]
-[2,1]
+[1,2] != [2,1]
 ```
 
-are different permutations.
+At every level, any unused element may be selected.
 
-Therefore, we may need to choose any unused element at every level.
-
-Pattern:
+Typical pattern:
 
 ```cpp
 for (int i = 0; i < n; i++) {
-    if (!used[i]) {
-        ...
-    }
+
+    if (used[i])
+        continue;
+
+    used[i] = true;
+    path.push_back(nums[i]);
+
+    backtrack();
+
+    path.pop_back();
+    used[i] = false;
 }
 ```
 
+Think:
+
+> **At every level, choose any element that hasn't been used.**
+
 ---
 
-# 16. Permutation Template
+# 14. `start` vs `used[]`
+
+Remember this distinction:
+
+| Technique | Main purpose                                                     |
+| --------- | ---------------------------------------------------------------- |
+| `start`   | Prevent going backward; useful for combinations                  |
+| `used[]`  | Track which elements are currently used; useful for permutations |
+
+### Combination
 
 ```cpp
-void backtrack() {
+backtrack(i + 1);
+```
 
-    if (path.size() == n) {
-        answer.push_back(path);
-        return;
-    }
+### Permutation
 
-    for (int i = 0; i < n; i++) {
-
-        if (used[i])
-            continue;
-
-        // Choose
-        used[i] = true;
-        path.push_back(nums[i]);
-
-        // Explore
-        backtrack();
-
-        // Undo
-        path.pop_back();
-        used[i] = false;
-    }
+```cpp
+if (!used[i]) {
+    used[i] = true;
+    ...
+    used[i] = false;
 }
 ```
 
-The important state is:
-
-```text
-path
-used[]
-```
+Don't confuse the two.
 
 ---
 
-# 17. Why `used[]` Is Needed
+# 15. Duplicate Handling
 
 Suppose:
 
 ```text
-nums = [1,2,3]
+[1,1,2]
 ```
 
-After:
+Blindly exploring both `1`s can produce duplicate answers.
 
-```text
-path = [1]
+Common approach:
+
+```cpp
+sort(nums.begin(), nums.end());
+
+if (i > start && nums[i] == nums[i - 1])
+    continue;
 ```
 
-we cannot choose `1` again.
+The important idea:
 
-`used[]` records which elements are currently in the path.
+> **Skip equal values at the same recursion level.**
 
-Example:
+Do **not** think of this as:
+
+> "Never use the same value again."
+
+Using the second `1` at a **deeper level** can be completely valid:
 
 ```text
-used = [true, false, false]
+[1,1]
 ```
 
-means:
+So:
 
 ```text
-1 → already used
-2 → available
-3 → available
+Same level → may skip duplicate
+Different level → may still use duplicate
 ```
 
 ---
 
-# 18. Backtracking State Can Be Explicit or Implicit
+# 16. `used[]` vs Duplicate Skipping
 
-Sometimes the state is stored in variables:
+These solve different problems.
 
-```cpp
-path
-used[]
-```
+### `used[]`
 
-Sometimes it is represented by parameters:
+Asks:
 
-```cpp
-index
-remaining
-row
-column
-```
+> **"Is this particular element already in my current path?"**
 
-Sometimes both are used.
+Used mainly for permutations.
 
-The goal is:
+### Duplicate skipping
 
-> **The state must contain enough information to describe the current partial solution.**
+Asks:
+
+> **"Have I already explored an equivalent branch at this recursion level?"**
+
+Used to avoid duplicate answers.
+
+Don't mix these concepts.
 
 ---
 
-# 19. Base Case in Backtracking
+# 17. Constraint Backtracking
 
-In backtracking, the base case usually means:
+Many difficult problems are **constraint satisfaction problems**.
 
-> **A complete solution has been constructed.**
+General structure:
+
+```text
+Choose
+  ↓
+Check constraint
+  ↓
+Valid?
+ ├── No → Skip
+ └── Yes
+      ↓
+    Explore
+      ↓
+     Undo
+```
 
 Examples:
 
-### Permutations
-
-```cpp
-if (path.size() == n)
+```text
+N-Queens
+Sudoku
+Graph Coloring
+Crossword
+Maze
 ```
 
-### Combination of size `k`
-
-```cpp
-if (path.size() == k)
-```
-
-### N-Queens
-
-```cpp
-if (row == n)
-```
-
-### Grid path
-
-```cpp
-if (r == destinationRow &&
-    c == destinationColumn)
-```
-
-The base case depends on what "complete solution" means.
+The earlier an invalid branch is rejected, the less search is required.
 
 ---
 
-# 20. Base Case vs Pruning
+# 18. N-Queens Pattern
 
-These are different.
-
-### Base case
-
-The solution is complete.
+For each row:
 
 ```text
-"We are done."
+Try every column
+      ↓
+Is this position safe?
+      ↓
+Yes → place queen
+      ↓
+Solve next row
+      ↓
+Remove queen
 ```
-
-### Pruning
-
-The current path cannot possibly produce a valid solution.
-
-```text
-"This branch is useless."
-```
-
-Example:
-
-```cpp
-if (sum > target)
-    return;
-```
-
-This is pruning, not a successful base case.
-
----
-
-# 21. Pruning
-
-**Pruning** means stopping exploration of a branch as soon as we know that branch cannot produce a valid answer.
-
-Without pruning:
-
-```text
-Explore everything
-```
-
-With pruning:
-
-```text
-Explore only promising branches
-```
-
-This can dramatically improve performance.
-
----
-
-# 22. Example of Pruning
-
-Suppose we need:
-
-```text
-sum = target
-```
-
-and current sum becomes:
-
-```text
-currentSum > target
-```
-
-If all remaining numbers are positive, the branch can never recover.
-
-Therefore:
-
-```cpp
-if (currentSum > target)
-    return;
-```
-
-We cut off that branch.
-
----
-
-# 23. Important Condition for Safe Pruning
-
-Never prune just because something "looks bad."
-
-You need a logical guarantee that:
-
-> **No valid solution can exist below this state.**
-
-For example:
-
-```cpp
-if (sum > target)
-    return;
-```
-
-is valid only when future choices cannot reduce `sum`.
-
-If negative numbers are allowed, the sum could later decrease, so that pruning may be incorrect.
-
----
-
-# 24. Pruning Is a Major Optimization
-
-Suppose there are theoretically:
-
-```text
-2^n
-```
-
-possibilities.
-
-A good pruning condition may prevent large portions of the search tree from being explored.
 
 Conceptually:
 
-```text
-Without pruning:
+```cpp
+for (each column) {
 
-             root
-        /     |     \
-      ...    ...    ...
-     /  \    / \    / \
-   huge search tree
+    if (!safe)
+        continue;
 
+    place_queen();
 
-With pruning:
+    backtrack(next_row);
 
-             root
-        /     |     \
-      ...    ✕     ...
-             ↑
-          stopped
+    remove_queen();
+}
 ```
+
+The safety check is also a form of pruning.
 
 ---
 
-# 25. Backtracking Search Tree
+# 19. Grid Backtracking
 
-The search tree represents:
-
-```text
-Level = number of decisions made
-Node = current state
-Edge = a choice
-Leaf = complete solution or dead end
-```
-
-This is extremely useful for understanding complexity.
-
-For example, in permutations:
+For grid problems, choices might be:
 
 ```text
-Level 0 → choose 1 of n
-Level 1 → choose 1 of n-1
-Level 2 → choose 1 of n-2
-...
+up
+down
+left
+right
 ```
 
-Number of leaves:
+A state could be:
 
-```text
-n!
+```cpp
+solve(row, col)
 ```
+
+Often we need a `visited` structure.
+
+```cpp
+visited[r][c] = true;
+
+solve(nextRow, nextCol);
+
+visited[r][c] = false;
+```
+
+The final line restores the state so another path can use the cell.
 
 ---
 
-# 26. Backtracking Complexity
+# 20. Backtracking vs DFS
 
-Backtracking often has exponential or factorial complexity.
+### DFS
 
-Common search-space sizes:
+Describes a traversal strategy:
 
-```text
-Subsets:
-2^n
+> **Go deep before exploring siblings.**
 
-Permutations:
-n!
+### Backtracking
 
-Binary choices for n decisions:
-2^n
+Describes a search technique:
 
-Choosing k elements:
-C(n,k)
-```
+> **Make a choice → explore → undo → try another choice.**
 
-But this is only the **number of possible solutions/states**.
+Backtracking is commonly implemented using DFS-style recursion, but:
 
-Actual complexity also depends on:
+> **DFS ≠ Backtracking**
 
-* Work done at each state
-* Copying answers
-* Pruning
-* Duplicate handling
-* Validation cost
+A normal tree DFS doesn't necessarily involve making and undoing choices.
 
 ---
 
-# 27. Why Backtracking Can Still Be the Correct Approach
+# 21. Backtracking vs Brute Force
 
-Even if the complexity is exponential, it may be unavoidable.
+### Brute Force
 
-If the problem asks:
+Try possibilities, often without intelligently stopping early.
 
-> "Generate all subsets"
+### Backtracking
 
-there are:
+Systematically explores possibilities while:
 
 ```text
-2^n
+maintaining state
+checking constraints
+pruning
+undoing choices
 ```
 
-subsets.
+So:
 
-You cannot output `2^n` objects in less than roughly `O(2^n)` time because the output itself has that size.
-
-This is called an **output-size lower bound**.
+> **Backtracking is often an organized and pruned form of brute-force search.**
 
 ---
 
-# 28. Backtracking for Optimization Problems
+# 22. Backtracking vs Dynamic Programming
 
-Backtracking isn't limited to generating all answers.
+Backtracking asks:
 
-It can also find:
+> **"What choices can I explore?"**
 
-* Minimum
-* Maximum
-* Best configuration
-* Feasible configuration
+DP asks:
+
+> **"Have I already solved this state?"**
+
+If the same state is reached repeatedly:
+
+```text
+same state
+   ↓
+same future possibilities
+```
+
+memoization may help.
+
+So ask:
+
+> **"Am I solving the same state repeatedly?"**
+
+If yes, investigate DP/memoization.
+
+---
+
+# 23. Backtracking + Bitmasking
+
+Sometimes state such as:
+
+```text
+Which elements are used?
+```
+
+can be represented using a bitmask.
 
 Example:
 
-> Find the minimum number of elements needed to reach a target.
-
-You can explore possible choices and maintain:
-
-```cpp
-best = min(best, currentAnswer);
+```text
+10110
 ```
 
-Pruning can then eliminate branches that cannot beat the current best.
+Each bit represents whether an element is selected/used.
+
+This can replace:
+
+```cpp
+bool used[n];
+```
+
+with a compact integer state.
+
+This becomes especially useful when combining:
+
+```text
+Backtracking + Bitmasking
+```
 
 ---
 
-# 29. Feasibility vs Enumeration vs Optimization
+# 24. Three Major Types of Backtracking Problems
 
-Many backtracking problems fall into three categories.
-
-### 1. Enumeration
+## 1. Enumeration
 
 Find **all** solutions.
 
@@ -969,25 +820,32 @@ All permutations
 All combinations
 ```
 
+You generally must explore the entire relevant search space.
+
 ---
 
-### 2. Feasibility
+## 2. Feasibility
 
 Find **whether at least one** solution exists.
 
 Examples:
 
 ```text
-Can N-Queens be solved?
+Can Sudoku be solved?
 Can the maze be solved?
-Can the Sudoku be completed?
+Can N-Queens be solved?
 ```
 
-Once a valid answer is found, you may stop.
+Once a solution is found, stop.
+
+```cpp
+if (backtrack(...))
+    return true;
+```
 
 ---
 
-### 3. Optimization
+## 3. Optimization
 
 Find the **best** solution.
 
@@ -996,535 +854,16 @@ Examples:
 ```text
 Minimum cost
 Maximum score
-Shortest valid configuration
+Minimum number of choices
 ```
 
-Backtracking explores candidates while maintaining the best result.
+Maintain the best answer and prune branches that cannot beat it.
 
 ---
 
-# 30. Duplicate Elements
+# 25. Returning `true` / `false`
 
-Duplicates create a major problem in backtracking.
-
-Suppose:
-
-```text
-[1,1,2]
-```
-
-If we blindly explore both `1`s, we may generate duplicate solutions.
-
-For example:
-
-```text
-[1,2]
-```
-
-could be generated multiple times.
-
-We need a strategy to avoid duplicate branches.
-
----
-
-# 31. Sorting for Duplicate Handling
-
-A common technique:
-
-```cpp
-sort(nums.begin(), nums.end());
-```
-
-Now equal values are adjacent.
-
-Then:
-
-```cpp
-if (i > start && nums[i] == nums[i - 1])
-    continue;
-```
-
-This means:
-
-> At the same recursion level, don't start another branch with the same value.
-
-This distinction is extremely important:
-
-> **Duplicates are usually skipped at the same depth, not globally.**
-
----
-
-# 32. Same Level vs Different Level
-
-Consider:
-
-```text
-[1,1,2]
-```
-
-Choosing the first `1` and then choosing the second `1` can be valid:
-
-```text
-[1,1]
-```
-
-But choosing the second `1` as another starting choice at the same level creates a duplicate branch.
-
-Therefore:
-
-```cpp
-if (i > start && nums[i] == nums[i - 1])
-    continue;
-```
-
-checks the current recursion level.
-
----
-
-# 33. Do Not Confuse Duplicate Values With Used Elements
-
-These are different concepts.
-
-### `used[]`
-
-Used for permutation-style problems.
-
-Question:
-
-> Has this particular element already been placed in the current path?
-
-### Duplicate skipping
-
-Question:
-
-> Have I already started an equivalent branch at this recursion depth?
-
-They solve different problems.
-
----
-
-# 34. Backtracking With Constraints
-
-Many important backtracking problems are **constraint satisfaction problems**.
-
-We construct a solution step by step while ensuring that every partial solution satisfies the constraints.
-
-Examples:
-
-* N-Queens
-* Sudoku
-* Graph coloring
-* Crossword solving
-
-General idea:
-
-```text
-Choose
- ↓
-Check constraints
- ↓
-Valid?
- ├── No → Undo / Skip
- └── Yes
-       ↓
-     Explore
-       ↓
-      Undo
-```
-
----
-
-# 35. N-Queens Example
-
-Goal:
-
-> Place `N` queens on an `N × N` chessboard so that no two queens attack each other.
-
-We can process:
-
-```text
-one row at a time
-```
-
-At each row:
-
-```text
-Try every column
-```
-
-For each position:
-
-```text
-Is it safe?
-```
-
-If yes:
-
-```text
-place queen
-solve next row
-remove queen
-```
-
-This is classic backtracking.
-
----
-
-# 36. Constraint Checking
-
-For N-Queens, a placement is invalid if another queen exists in:
-
-```text
-same column
-same diagonal
-```
-
-So before choosing:
-
-```text
-if position is unsafe
-    skip
-```
-
-This is a form of **pruning**.
-
-The earlier we reject an invalid branch, the less search we perform.
-
----
-
-# 37. Constraint Representation
-
-A constraint can be stored using:
-
-```text
-arrays
-sets
-hash sets
-bitmasks
-boolean matrices
-```
-
-For example:
-
-```cpp
-vector<bool> column(n);
-vector<bool> diagonal1(2*n);
-vector<bool> diagonal2(2*n);
-```
-
-Then checking whether a position is safe becomes very fast.
-
-This is where backtracking and **bitmasking** can eventually be combined.
-
----
-
-# 38. Grid Backtracking
-
-Some problems involve moving through a grid.
-
-Typical choices:
-
-```text
-up
-down
-left
-right
-```
-
-A state might be:
-
-```cpp
-solve(row, col)
-```
-
-or:
-
-```cpp
-solve(row, col, ...)
-```
-
-Usually we need to prevent cycles:
-
-```cpp
-visited[row][col] = true;
-```
-
-Then:
-
-```cpp
-solve(nextRow, nextCol);
-```
-
-and afterward:
-
-```cpp
-visited[row][col] = false;
-```
-
-The final step is the backtracking undo.
-
----
-
-# 39. Why `visited` Must Often Be Undone
-
-Suppose a cell is visited on one path:
-
-```text
-A → B → C
-```
-
-When returning from that path, another path may legitimately need to use `C`.
-
-Therefore:
-
-```cpp
-visited[r][c] = true;
-
-solve(...);
-
-visited[r][c] = false;
-```
-
-The second line restores the state.
-
----
-
-# 40. Backtracking vs DFS
-
-These concepts are related but not identical.
-
-### DFS
-
-Depth First Search describes a **traversal strategy**:
-
-> Explore deeply before exploring siblings.
-
-### Backtracking
-
-Describes a **search technique**:
-
-> Build a candidate solution, explore it, undo it, and try another choice.
-
-Backtracking often uses DFS because the search naturally goes deep into one candidate before returning.
-
-So:
-
-> **Backtracking is commonly implemented using DFS-style recursion.**
-
-But DFS itself is not necessarily backtracking.
-
----
-
-# 41. Backtracking vs Brute Force
-
-They are related but different.
-
-### Brute force
-
-Try every possibility, often without stopping early.
-
-### Backtracking
-
-Systematically explores possibilities while:
-
-* Maintaining state
-* Rejecting invalid partial solutions
-* Undoing choices
-* Pruning unnecessary branches
-
-Therefore:
-
-> **Backtracking is often a smarter form of brute-force search.**
-
----
-
-# 42. Backtracking vs Dynamic Programming
-
-Backtracking:
-
-> Explore different choices.
-
-DP:
-
-> Reuse answers to repeated states.
-
-A backtracking tree may contain:
-
-```text
-same state
-    ↓
-same state
-```
-
-multiple times.
-
-If the future depends only on that state and the same state appears repeatedly, memoization/DP may help.
-
-So a useful question is:
-
-> **"Am I solving the same state repeatedly?"**
-
-If yes, DP may be applicable.
-
----
-
-# 43. Backtracking + Memoization
-
-Some problems combine both.
-
-General idea:
-
-```text
-Backtracking
-     +
-Repeated states
-     ↓
-Memoization
-```
-
-Instead of exploring the same state again, store its result.
-
-However, don't add memoization automatically.
-
-First understand the state and search tree.
-
----
-
-# 44. State Compression
-
-Sometimes the state contains a large amount of information.
-
-Example:
-
-```text
-Which elements have been used?
-```
-
-Instead of:
-
-```cpp
-bool used[n];
-```
-
-we can represent the same information with a bitmask:
-
-```text
-00000
-```
-
-Each bit represents whether an element has been used.
-
-For example:
-
-```text
-10110
-```
-
-could mean:
-
-```text
-element 0 → unused
-element 1 → used
-element 2 → used
-element 3 → unused
-element 4 → used
-```
-
-This can make the state compact and fast.
-
----
-
-# 45. Common Backtracking Templates
-
-## Template 1 — Choose / Undo
-
-```cpp
-void backtrack(state) {
-
-    if (complete) {
-        save();
-        return;
-    }
-
-    for (choice : choices) {
-
-        make(choice);
-
-        backtrack(newState);
-
-        undo(choice);
-    }
-}
-```
-
----
-
-## Template 2 — Start Index
-
-```cpp
-void backtrack(int start) {
-
-    if (complete) {
-        save();
-        return;
-    }
-
-    for (int i = start; i < n; i++) {
-
-        path.push_back(nums[i]);
-
-        backtrack(i + 1);
-
-        path.pop_back();
-    }
-}
-```
-
-Useful for:
-
-```text
-subsets
-combinations
-combination sum
-```
-
----
-
-## Template 3 — Used Array
-
-```cpp
-void backtrack() {
-
-    if (complete) {
-        save();
-        return;
-    }
-
-    for (int i = 0; i < n; i++) {
-
-        if (used[i])
-            continue;
-
-        used[i] = true;
-        path.push_back(nums[i]);
-
-        backtrack();
-
-        path.pop_back();
-        used[i] = false;
-    }
-}
-```
-
-Useful for:
-
-```text
-permutations
-```
-
----
-
-## Template 4 — Constraint Backtracking
+For problems where you only need **one valid solution**:
 
 ```cpp
 bool backtrack(state) {
@@ -1537,64 +876,94 @@ bool backtrack(state) {
         if (!valid(choice))
             continue;
 
-        make(choice);
+        make_choice();
 
-        if (backtrack(newState))
+        if (backtrack(new_state))
             return true;
 
-        undo(choice);
+        undo_choice();
     }
 
     return false;
 }
 ```
 
-Useful when you only need to find **one valid solution**.
+Meaning:
+
+```text
+true  → a solution exists below this branch
+false → this branch failed
+```
+
+This avoids unnecessary exploration.
 
 ---
 
-# 46. Returning `true` From Backtracking
+# 26. Complexity
 
-When the problem asks for **any one solution**, you don't necessarily need to explore everything.
+Backtracking is often exponential or factorial.
+
+Common search-space sizes:
+
+```text
+Subsets:
+2^n
+
+Binary choices:
+2^n
+
+Permutations:
+n!
+
+Choose k:
+C(n,k)
+```
+
+But actual complexity also depends on:
+
+```text
+work per state
+copying answers
+duplicate handling
+constraint checks
+pruning
+```
+
+A useful estimate is:
+
+```text
+Number of states/branches
+×
+Work per state
+```
+
+---
+
+# 27. Output Size Matters
+
+If the problem asks for all subsets, there are:
+
+```text
+2^n
+```
+
+subsets.
+
+Therefore, simply producing the output already requires exponential work.
+
+So don't automatically reject a backtracking solution because it is exponential.
+
+> **If the output itself is exponential, exponential time may be unavoidable.**
+
+---
+
+# 28. State Invariant
+
+A very useful way to reason about backtracking:
+
+> **At every recursive call, the current state must exactly represent the choices made on the path to that call.**
 
 Example:
-
-```cpp
-if (backtrack(...))
-    return true;
-```
-
-This means:
-
-> A valid solution was found below this branch. Stop searching.
-
-This can save enormous amounts of work.
-
----
-
-# 47. Returning `false`
-
-If every choice fails:
-
-```cpp
-return false;
-```
-
-This tells the previous level:
-
-> "This path cannot produce a solution. Try another choice."
-
-This creates a very clean recursive communication pattern.
-
----
-
-# 48. Backtracking State Invariant
-
-A powerful way to reason about backtracking:
-
-> **At the beginning of every recursive call, the state must represent exactly the choices made on the path from the root to that call.**
-
-For example:
 
 ```text
 path = [1,3]
@@ -1602,31 +971,33 @@ path = [1,3]
 
 means:
 
-> We chose `1`, then `3`.
+```text
+We chose 1, then 3.
+```
 
-When returning:
+After returning:
 
 ```cpp
 path.pop_back();
 ```
 
-restores:
+we restore:
 
 ```text
 path = [1]
 ```
 
-This invariant is extremely important.
+This is why correct undo operations are so important.
 
 ---
 
-# 49. The "One Level = One Decision" Rule
+# 29. One Level = One Decision
 
 A useful mental model:
 
 > **Each recursion level usually represents one decision.**
 
-For permutations:
+### Permutations
 
 ```text
 Level 0 → choose first element
@@ -1634,7 +1005,7 @@ Level 1 → choose second element
 Level 2 → choose third element
 ```
 
-For N-Queens:
+### N-Queens
 
 ```text
 Level 0 → choose column for row 0
@@ -1642,7 +1013,7 @@ Level 1 → choose column for row 1
 Level 2 → choose column for row 2
 ```
 
-For combinations:
+### Combinations
 
 ```text
 Level 0 → choose first element
@@ -1650,169 +1021,125 @@ Level 1 → choose second element
 Level 2 → choose third element
 ```
 
-This makes the recursion tree much easier to understand.
+If you understand what each level represents, the recursion becomes much easier to design.
 
 ---
 
-# 50. A Systematic Method to Solve Backtracking Problems
+# 30. How to Solve a New Backtracking Problem
 
-When you encounter a new problem:
+Use this process:
 
-### Step 1 — Ask whether choices exist
+### Step 1 — Identify the decisions
 
-> "At the current state, are there multiple possible decisions?"
-
-If yes, backtracking may be appropriate.
-
----
+> What choices can I make at this state?
 
 ### Step 2 — Define the state
 
-Ask:
+> What information describes my current partial solution?
 
-> "What information completely describes my current partial solution?"
+### Step 3 — Define the goal
 
----
+> When is the solution complete?
 
-### Step 3 — Define the choices
+### Step 4 — Define constraints
 
-Ask:
+> Which choices are invalid?
 
-> "What can I choose next?"
+### Step 5 — Identify pruning
 
----
+> When can I prove this branch can never work?
 
-### Step 4 — Define the goal
+### Step 6 — Choose
 
-Ask:
+Modify the state.
 
-> "When is my solution complete?"
+### Step 7 — Explore
 
----
-
-### Step 5 — Define invalid states
-
-Ask:
-
-> "When can I prove this branch cannot work?"
-
-These become pruning conditions.
-
----
-
-### Step 6 — Make the choice
-
-Update the state.
-
----
-
-### Step 7 — Recurse
-
-Explore the consequence.
-
----
+Call recursion.
 
 ### Step 8 — Undo
 
 Restore the state.
 
----
-
-### Step 9 — Analyze complexity
-
-Estimate:
+### Step 9 — Analyze
 
 ```text
-number of states/branches
+search-space size
 ×
 work per state
 ```
 
 ---
 
-# 51. The Backtracking Checklist
+# 31. Universal Template
 
-Before coding:
+When you are stuck, start from this:
+
+```cpp
+void backtrack(state) {
+
+    if (complete) {
+        save_answer();
+        return;
+    }
+
+    for (each choice) {
+
+        if (!valid(choice))
+            continue;
+
+        make_choice();
+
+        backtrack(new_state);
+
+        undo_choice();
+    }
+}
+```
+
+Then determine:
 
 ```text
-□ What is my state?
-
-□ What does solve(...) mean?
-
-□ What is one recursion level representing?
-
-□ What choices are available?
-
-□ What is my base case?
-
-□ What makes a state invalid?
-
-□ What can I prune?
-
-□ What state do I modify?
-
-□ How do I undo that modification?
-
-□ Do I need start index?
-
-□ Do I need used[]?
-
-□ Do I need duplicate skipping?
-
-□ Does order matter?
-
-□ Am I finding all solutions or only one?
-
-□ Could states repeat?
-
-□ Would memoization help?
-
-□ What is the search-space size?
-
-□ What is the time complexity?
-
-□ What is the recursion-stack space?
+state
+choices
+complete
+valid
+make_choice
+undo_choice
 ```
+
+These six pieces usually define the entire solution.
 
 ---
 
-# 52. Common Backtracking Mistakes
+# 32. Common Mistakes
 
-## Mistake 1 — Forgetting the Undo
-
-Wrong:
+### 1. Forgetting Undo
 
 ```cpp
 path.push_back(x);
 backtrack(...);
 ```
 
-Correct:
+Missing:
 
 ```cpp
-path.push_back(x);
-
-backtrack(...);
-
 path.pop_back();
 ```
 
-Without undoing, later branches inherit the previous branch's state.
-
 ---
 
-# 53. Mistake 2 — Undoing Too Early
+### 2. Undoing Too Early
 
 Wrong:
 
 ```cpp
 path.push_back(x);
 path.pop_back();
-
 backtrack(...);
 ```
 
-The recursive call never sees the choice.
+The recursive call never sees `x`.
 
 Correct:
 
@@ -1822,466 +1149,188 @@ backtrack(...);
 path.pop_back();
 ```
 
-The choice must remain active during exploration.
-
 ---
 
-# 54. Mistake 3 — Incorrect Base Case
+### 3. Wrong Base Case
 
-Don't simply use:
+Don't blindly use:
 
 ```cpp
 if (i == n)
 ```
 
-because it looks familiar.
+Ask:
+
+> **Does this state actually represent a complete solution?**
+
+---
+
+### 4. State Is Incomplete
+
+If the function doesn't have enough information to describe the current situation, the recursion cannot make correct decisions.
 
 Ask:
 
-> "Does `i == n` actually mean a complete solution?"
-
-The base case must match the meaning of the state.
+> **"Can I completely describe the current partial solution from my state?"**
 
 ---
 
-# 55. Mistake 4 — Choosing the Wrong State
+### 5. Wrong `start` / `used[]`
 
-If the function doesn't know enough information to continue the search correctly, the state is incomplete.
-
-Ask:
-
-> "If I stopped here, could I completely describe the current partial solution?"
-
-If not, add the missing information.
-
----
-
-# 56. Mistake 5 — Using `start` When You Need `used[]`
-
-If order matters:
+Remember:
 
 ```text
-[1,2]
-[2,1]
+Combination → start
+Permutation  → used[]
 ```
 
-must both be generated.
-
-Using only:
-
-```cpp
-start
-```
-
-usually prevents going backward.
-
-For permutations, use:
-
-```cpp
-used[]
-```
-
-instead.
+when those patterns fit the problem.
 
 ---
 
-# 57. Mistake 6 — Using `used[]` When You Need `start`
+### 6. Incorrect Duplicate Handling
 
-For combinations, order usually doesn't matter.
-
-Using a `used[]` array may generate:
-
-```text
-[1,2]
-[2,1]
-```
-
-which are duplicates.
-
-Use a forward `start` index when appropriate.
-
----
-
-# 58. Mistake 7 — Forgetting Duplicate Handling
-
-For input such as:
-
-```text
-[1,1,2]
-```
-
-you may generate duplicate answers.
-
-Common solution:
+Don't blindly add:
 
 ```cpp
-sort(nums.begin(), nums.end());
-
 if (i > start && nums[i] == nums[i - 1])
-    continue;
 ```
 
-But remember:
+to every problem.
 
-> Duplicate skipping depends on the exact problem.
-
-Don't blindly add this condition everywhere.
+Duplicate handling depends on the exact problem.
 
 ---
 
-# 59. Mistake 8 — Incorrect Pruning
+### 7. Incorrect Pruning
 
-Wrong pruning can remove valid solutions.
+Never prune simply because a branch "looks bad."
 
-Example:
+Ask:
 
-```cpp
-if (sum > target)
-    return;
-```
+> **"Can this branch still become a valid solution?"**
 
-is not always valid.
-
-It is safe only if future choices cannot decrease the sum.
-
-Always ask:
-
-> **"Can this branch ever become valid later?"**
-
-If yes → don't prune.
+If yes, don't prune.
 
 ---
 
-# 60. Mistake 9 — Modifying Shared State Without Restoring It
+### 8. Shared State Not Restored
 
-For example:
-
-```cpp
-visited[r][c] = true;
-```
-
-must often be followed by:
-
-```cpp
-visited[r][c] = false;
-```
-
-after recursion.
-
-The same principle applies to:
+If you modify:
 
 ```text
 path
-used[]
+visited
+used
 board
 frequency
-counters
-sets
-maps
 ```
+
+make sure it is restored when necessary.
 
 ---
 
-# 61. Mistake 10 — Copying the Entire State Unnecessarily
+### 9. Unnecessary State Copying
 
-This:
+Passing a large state by value can repeatedly copy it.
 
-```cpp
-backtrack(vector<int> path)
-```
-
-may copy `path` at every recursive call.
-
-Often it is more efficient to use:
+Often use a reference:
 
 ```cpp
 backtrack(vector<int>& path)
 ```
 
-and explicitly undo:
+and manually undo changes.
+
+---
+
+### 10. Continuing After Finding a Solution
+
+If only one solution is required:
 
 ```cpp
-path.push_back(x);
-backtrack(path);
-path.pop_back();
+if (backtrack(...))
+    return true;
 ```
 
-This reduces unnecessary copying.
+Stop as soon as the answer is found.
 
 ---
 
-# 62. Mistake 11 — Forgetting That Answers Are Also Stored
+# 33. Quick Pattern Recognition
 
-If you do:
-
-```cpp
-answer.push_back(path);
-```
-
-the vector is copied.
-
-But if you store references/pointers to a mutable `path`, all results may appear identical after backtracking.
-
-Usually:
-
-```cpp
-answer.push_back(path);
-```
-
-is the safe approach.
+| Problem type       | Typical pattern                            |
+| ------------------ | ------------------------------------------ |
+| Subsets            | Take / Skip                                |
+| Combinations       | `start` + loop                             |
+| Permutations       | `used[]` + loop                            |
+| Combination Sum    | `start` + target + pruning                 |
+| N-Queens           | Row + column choices + constraints         |
+| Sudoku             | Empty cell + possible values + constraints |
+| Grid path          | Position + visited + directions            |
+| Find one solution  | Return `true/false`                        |
+| Find all solutions | Store every valid solution                 |
 
 ---
 
-# 63. Mistake 12 — Confusing "Current Path" With "Final Answer"
+# 34. Final Mental Model
 
-`path` usually represents:
-
-> **The current partial solution.**
-
-It does not necessarily represent a complete answer.
-
-Only save it when:
+Whenever you see a backtracking problem, think:
 
 ```text
-the problem's completion condition is satisfied
+                 CURRENT STATE
+                       ↓
+                 What can I choose?
+                  /     |     \
+                 /      |      \
+             Choice A Choice B Choice C
+                ↓        ↓        ↓
+             Explore  Explore  Explore
+                ↓        ↓        ↓
+               Undo     Undo     Undo
 ```
 
-unless the problem specifically wants every prefix, such as subset generation.
-
----
-
-# 64. Mistake 13 — Not Understanding Recursion Levels
-
-If each level represents one decision, make sure you know:
+And remember:
 
 ```text
-Level 0 → ?
-Level 1 → ?
-Level 2 → ?
-```
-
-If you cannot explain what each level means, the recursion design is probably unclear.
-
----
-
-# 65. Mistake 14 — Exploring After Finding the Required Answer
-
-If the problem asks:
-
-> "Does a solution exist?"
-
-and you already found one, continuing to search is unnecessary.
-
-Use:
-
-```cpp
-return true;
-```
-
-and propagate it upward.
-
----
-
-# 66. Mistake 15 — Ignoring the Output Size
-
-If a problem asks for all:
-
-```text
-2^n subsets
-```
-
-you cannot expect polynomial time.
-
-The output itself is exponential.
-
-Always consider:
-
-> **How many solutions must I actually produce?**
-
----
-
-# 67. Backtracking Pattern Recognition
-
-When reading a problem, these phrases are strong signals:
-
-```text
-"Generate all..."
-"Find all possible..."
-"Return all..."
-"Choose..."
-"Arrange..."
-"Place..."
-"Partition..."
-"Select..."
-"Try every..."
-"Find a valid configuration..."
-"Can we construct..."
-"All possible combinations..."
-"All permutations..."
-```
-
-These don't guarantee backtracking, but they should make you consider it.
-
----
-
-# 68. A More Important Signal Than Keywords
-
-Don't depend only on keywords.
-
-Ask:
-
-> **"Does the solution require making a sequence of choices where an earlier choice can be undone so that I can try another choice?"**
-
-If yes, backtracking is a strong candidate.
-
----
-
-# 69. The Universal Backtracking Mental Model
-
-Whenever you see a backtracking problem, imagine:
-
-```text
-                    STATE
-                      │
-              What choices exist?
-                 /    |    \
-                /     |     \
-            Choice 1 Choice 2 Choice 3
-               │        │        │
-             state     state     state
-               │        │        │
-            recurse   recurse   recurse
-               │        │        │
-             undo     undo      undo
-```
-
-Every branch represents a different decision.
-
----
-
-# 70. Backtracking in One Sentence
-
-Remember this:
-
-> **Backtracking explores a decision tree by making a choice, recursively exploring it, undoing the choice, and then trying the next choice.**
-
----
-
-# 71. The Five Things You Must Identify
-
-For any new backtracking problem, identify:
-
-```text
-1. STATE
-   What have I decided so far?
-
-2. CHOICES
-   What can I choose next?
-
-3. CONSTRAINTS
-   Which choices are invalid?
-
-4. GOAL
-   When is the solution complete?
-
-5. UNDO
-   What must I restore after exploring a choice?
-```
-
-If these five are clear, the implementation is usually straightforward.
-
----
-
-# 72. Final Backtracking Formula
-
-The most important pattern to remember:
-
-```text
-                Current State
-                     │
-              ┌──────┴──────┐
-              │             │
-           Choice A       Choice B
-              │             │
-           Explore       Explore
-              │             │
-            Undo          Undo
-              │             │
-           Choice B       Choice A
-```
-
-Or in code:
-
-```cpp
-for (each choice) {
-
-    // 1. Choose
-    make_choice();
-
-    // 2. Explore
-    backtrack();
-
-    // 3. Undo
-    undo_choice();
-}
-```
-
----
-
-# 73. Final Learning Path
-
-A good order for learning backtracking is:
-
-```text
-1. Recursion
-      ↓
-2. Decision Trees
-      ↓
-3. Choose → Explore → Undo
-      ↓
-4. Subsets
-      ↓
-5. Combinations
-      ↓
-6. Permutations
-      ↓
-7. Combination Sum
-      ↓
-8. Duplicate Handling
-      ↓
-9. Pruning
-      ↓
-10. Constraint Problems
-      ↓
-11. Grid Backtracking
-      ↓
-12. N-Queens
-      ↓
-13. Sudoku
-      ↓
-14. Backtracking + Bitmasking
-      ↓
-15. Backtracking + Memoization
-```
-
-The most important progression is:
-
-```text
-Recursion
-   ↓
-Choices
-   ↓
-Decision Tree
-   ↓
 State
-   ↓
+ ↓
+Choices
+ ↓
+Constraints
+ ↓
 Choose
-   ↓
+ ↓
 Explore
-   ↓
+ ↓
 Undo
-   ↓
-Prune
+ ↓
+Next Choice
 ```
 
-Once this sequence becomes natural, most backtracking problems stop looking like completely different problems. They become variations of the same fundamental search pattern.
+---
+
+# 35. The 7 Things to Remember
+
+If you remember nothing else, remember these:
+
+```text
+1. Backtracking = Choose → Explore → Undo
+
+2. Each recursion level usually represents one decision.
+
+3. State describes the current partial solution.
+
+4. Base case means the solution is complete.
+
+5. Pruning means the branch cannot possibly work.
+
+6. Combination → usually move forward with start.
+   Permutation → usually track used elements.
+
+7. Every modification to shared state must be correctly undone.
+```
+
+### One-sentence definition
+
+> **Backtracking systematically explores a decision tree by making a choice, recursively exploring it, undoing that choice, and trying the next choice.**
